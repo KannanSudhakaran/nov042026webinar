@@ -1,0 +1,12 @@
+{
+  "name": "hello-webinar",
+  "version": "1.0.0",
+  "description": "Simple Node.js web app serving a static home page",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

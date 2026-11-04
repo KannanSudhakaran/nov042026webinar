@@ -39,6 +39,34 @@
       border-radius: 2px;
     }
     p { color: #6b7280; font-size: 1rem; }
+    h2 { font-size: 1.2rem; font-weight: 600; color: #0f2027; margin-bottom: 16px; }
+    .participants { margin-top: 32px; text-align: left; }
+    .participants ul { list-style: none; margin-bottom: 20px; }
+    .participants li {
+      padding: 10px 14px;
+      border-bottom: 1px solid #e5e7eb;
+      color: #1f2937;
+    }
+    .participants li:last-child { border-bottom: none; }
+    .add-form { display: flex; gap: 8px; }
+    .add-form input {
+      flex: 1;
+      padding: 10px 12px;
+      font-size: 1rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+    }
+    .add-form button {
+      padding: 10px 18px;
+      font-size: 1rem;
+      color: #fff;
+      background: #2c5364;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .add-form button:hover { background: #203a43; }
+    .message { margin-top: 10px; font-size: 0.9rem; color: #b91c1c; min-height: 1.2em; }
   </style>
 </head>
 <body>
@@ -46,6 +74,59 @@
     <h1>Hello Webinar Folks, How Are You Doing?</h1>
     <div class="divider"></div>
     <p>Welcome, and thank you for joining us today.</p>
+
+    <section class="participants">
+      <h2>Webinar Participants (<span id="count">0</span>)</h2>
+      <ul id="list"></ul>
+      <form class="add-form" id="add-form">
+        <input type="text" id="name" placeholder="Add a participant" maxlength="50" required>
+        <button type="submit">Add</button>
+      </form>
+      <div class="message" id="message"></div>
+    </section>
   </main>
+
+  <script>
+    const list = document.getElementById('list');
+    const count = document.getElementById('count');
+    const message = document.getElementById('message');
+    const form = document.getElementById('add-form');
+    const input = document.getElementById('name');
+
+    function render(names) {
+      list.innerHTML = '';
+      names.forEach((n) => {
+        const li = document.createElement('li');
+        li.textContent = n;
+        list.appendChild(li);
+      });
+      count.textContent = names.length;
+    }
+
+    async function load() {
+      const res = await fetch('/api/participants');
+      render(await res.json());
+    }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      message.textContent = '';
+      const res = await fetch('/api/participants', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: input.value })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        message.textContent = data.error || 'Something went wrong';
+        return;
+      }
+      render(data);
+      input.value = '';
+      input.focus();
+    });
+
+    load();
+  </script>
 </body>
 </html>
